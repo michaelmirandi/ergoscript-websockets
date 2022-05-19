@@ -5,23 +5,28 @@
   </head>
   <body>
     <h1>WebSocket</h1>
-    <h2>Your ID: <span id="ws-id"></span></h2>
+    <h3>Your ID: <span id="ws-id"></span></h3>
+    <h2>Mempool Transactions:</h2>
     <ul id="messages"></ul>
     <script>
       const clientId = 'ergopad-' + Date.now();
       document.querySelector('#ws-id').textContent = clientId;
-      const ws = new WebSocket(`ws://localhost:8000/ws/${clientId}`);
+      const ws = new WebSocket(`ws://${window.location.host}/ws/${clientId}`);
       ws.onmessage = (event) => {
-        const messages = document.getElementById('messages');
-        const list = JSON.parse(event.data).items.map((item) => {
-          const message = document.createElement('li');
-          const content = document.createTextNode(item.id);
-          message.appendChild(content);
-          return message;
-        });
-        messages.replaceChildren(...list);
+        try {
+          const messages = document.getElementById('messages');
+          const list = JSON.parse(event.data).items.map((item) => {
+            const message = document.createElement('li');
+            const content = document.createTextNode(item.id);
+            message.appendChild(content);
+            return message;
+          });
+          messages.replaceChildren(...list);
+        } catch (e) {
+          console.log(e);
+        }
       };
-      fetch(`http://localhost:8000/register/${clientId}`, {
+      fetch(`/register/${clientId}`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -34,8 +39,8 @@
         .then((res) => {
           console.log(res);
         })
-        .catch((res) => {
-          console.log(res);
+        .catch((e) => {
+          console.log(e);
         });
     </script>
   </body>
