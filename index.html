@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebSocket</title>
+  </head>
+  <body>
+    <h1>WebSocket</h1>
+    <h2>Your ID: <span id="ws-id"></span></h2>
+    <ul id="messages"></ul>
+    <script>
+      const clientId = 'ergopad-' + Date.now();
+      document.querySelector('#ws-id').textContent = clientId;
+      const ws = new WebSocket(`ws://localhost:8000/ws/${clientId}`);
+      ws.onmessage = (event) => {
+        const messages = document.getElementById('messages');
+        const list = JSON.parse(event.data).items.map((item) => {
+          const message = document.createElement('li');
+          const content = document.createTextNode(item.id);
+          message.appendChild(content);
+          return message;
+        });
+        messages.replaceChildren(...list);
+      };
+      fetch(`http://localhost:8000/register/${clientId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          url: 'https://api.ergoplatform.com/transactions/unconfirmed?limit=30&offset=0&sortBy=size&sortDirection=desc',
+        }),
+      })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    </script>
+  </body>
+</html>
